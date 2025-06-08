@@ -1,0 +1,37 @@
+Max Crime Per Hex = 
+CALCULATE(
+    MAXX(
+        VALUES(dim_asb_h3[h3_index_6]), 
+        [Crime Occurrence Count]
+    ),
+    ALLSELECTED(fact_crimes)
+)
+
+Crime Occurrence Count = calculate(
+    COUNTROWS(fact_crimes))
+
+Crime Intensity = 
+DIVIDE([Crime Occurrence Count], [Max Crime Per Hex], 0)
+
+
+wkt_level = 
+
+ var wkt = SWITCH(true(),
+    distinctcount(fact_crimes[crime_sk])=1 &&
+    distinctcount(dim_asb_h3[h3_index_6])=1 &&
+    distinctcount(dim_asb_h3[h3_index_7])=1 &&
+    distinctcount(dim_asb_h3[h3_index_8])=1 &&
+    distinctcount(dim_asb_h3[h3_index_9])=1
+    ,max(fact_crimes[wkt_point]),
+    distinctcount(dim_asb_h3[h3_index_7])=1 &&
+    distinctcount(dim_asb_h3[h3_index_8])=1 &&
+    distinctcount(dim_asb_h3[h3_index_9])=1
+    ,max(dim_asb_h3[h3_9_wkt]),
+    distinctcount(dim_asb_h3[h3_index_7])=1 &&
+    distinctcount(dim_asb_h3[h3_index_8])=1,max(dim_asb_h3[h3_8_wkt]),
+    distinctcount(dim_asb_h3[h3_index_7])=1,max(dim_asb_h3[h3_7_wkt]),
+    max(dim_asb_h3[h3_6_wkt]))
+
+return wkt
+
+ 
